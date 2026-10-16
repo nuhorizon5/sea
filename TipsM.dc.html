@@ -14,6 +14,8 @@
 <style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{margin:0;height:100%;overflow:hidden;background:#2A4BA0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}#dc-root{position:fixed;left:0;top:0;transform-origin:0 0}</style>
 <script>
 window.__SEA_LIVE = true;
+window.__SEA_API = 'https://script.google.com/macros/s/AKfycbwoWb6LhdttPRsxa68UaQNMGSE7HxuDoQqYwFj5Gv3zFnR2FVO8uxL7iucHP7wXhEHZDw/exec';
+try { var __q = new URLSearchParams(location.search).get('me'); if (__q === 'hy-260dfaa1') localStorage.setItem('sea:me', 'hy'); else if (__q === 'sea') localStorage.removeItem('sea:me'); } catch (e) {}
 (function () {
   var name = location.pathname.split('/').pop() || '';
   var isM = /M2?\.dc\.html$/.test(name);
@@ -141,8 +143,10 @@ button{font-family:inherit}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"ddPreview":{"editor":"number","default":0,"label":"남은 날 미리보기 (0=오늘 기준)"},"$preview":{"width":390,"height":844},"showObjects":{"editor":"boolean","default":true}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = Object.assign({ tab: 'guide', idx: null }, (() => { try { return JSON.parse(localStorage.getItem('sea:Tips') || '{}'); } catch (e) { return {}; } })()); }
-  setState(t, n){ super.setState(t, n); const K = ["edits", "added", "who"]; if (t && typeof t === 'object' && K.some((k) => k in t)) { try { const o = JSON.parse(localStorage.getItem('sea:Tips') || '{}'); K.forEach((k) => { if (k in t) o[k] = t[k]; }); localStorage.setItem('sea:Tips', JSON.stringify(o)); } catch (e) {} } }
+  constructor(p){ super(p); this.state = Object.assign({ tab: 'guide', idx: null }, (() => { try { return JSON.parse(localStorage.getItem('sea:Tips') || '{}'); } catch (e) { return {}; } })());
+    const K = ["edits", "added", "who"], API = (typeof window !== 'undefined' && window.__SEA_API) || '';
+    if (API && K.length && 'Tips' !== 'Ask') setTimeout(() => { fetch(API + '?t=' + Date.now()).then((r) => r.json()).then((d) => { const r = d && d.store && d.store['sea:Tips']; let la = 0; try { la = Number(localStorage.getItem('sea:Tips:at') || 0); } catch (e) {} if (r && r.v && Number(r.at) > la) { this.__remote = true; this.setState(r.v); this.__remote = false; try { localStorage.setItem('sea:Tips:at', String(r.at)); } catch (e) {} } }).catch(() => {}); }, 50); }
+  setState(t, n){ super.setState(t, n); const K = ["edits", "added", "who"]; if (t && typeof t === 'object' && K.some((k) => k in t)) { try { const o = JSON.parse(localStorage.getItem('sea:Tips') || '{}'); K.forEach((k) => { if (k in t) o[k] = t[k]; }); localStorage.setItem('sea:Tips', JSON.stringify(o)); const at = Date.now(); if (!this.__remote) localStorage.setItem('sea:Tips:at', String(at)); const API = window.__SEA_API; if (API && !this.__remote && 'Tips' !== 'Ask') { clearTimeout(this.__push); this.__push = setTimeout(() => fetch(API, { method: 'POST', body: JSON.stringify({ action: 'set', key: 'sea:Tips', value: o, at }) }).catch(() => {}), 800); } } catch (e) {} } }
   renderVals() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());

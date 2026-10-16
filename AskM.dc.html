@@ -14,6 +14,8 @@
 <style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{margin:0;height:100%;overflow:hidden;background:#2A4BA0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}#dc-root{position:fixed;left:0;top:0;transform-origin:0 0}</style>
 <script>
 window.__SEA_LIVE = true;
+window.__SEA_API = 'https://script.google.com/macros/s/AKfycbwoWb6LhdttPRsxa68UaQNMGSE7HxuDoQqYwFj5Gv3zFnR2FVO8uxL7iucHP7wXhEHZDw/exec';
+try { var __q = new URLSearchParams(location.search).get('me'); if (__q === 'hy-260dfaa1') localStorage.setItem('sea:me', 'hy'); else if (__q === 'sea') localStorage.removeItem('sea:me'); } catch (e) {}
 (function () {
   var name = location.pathname.split('/').pop() || '';
   var isM = /M2?\.dc\.html$/.test(name);
@@ -148,8 +150,10 @@ button{font-family:inherit}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"ddPreview":{"editor":"number","default":0,"label":"남은 날 미리보기 (0=오늘 기준)"},"$preview":{"width":390,"height":844},"showObjects":{"editor":"boolean","default":true}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = Object.assign({ mode: null, posts: [] }, (() => { try { return JSON.parse(localStorage.getItem('sea:Ask') || '{}'); } catch (e) { return {}; } })()); }
-  setState(t, n){ super.setState(t, n); const K = ["posts", "replies"]; if (t && typeof t === 'object' && K.some((k) => k in t)) { try { const o = JSON.parse(localStorage.getItem('sea:Ask') || '{}'); K.forEach((k) => { if (k in t) o[k] = t[k]; }); localStorage.setItem('sea:Ask', JSON.stringify(o)); } catch (e) {} } }
+  constructor(p){ super(p); this.state = Object.assign({ mode: null, ms: [] }, (() => { try { return JSON.parse(localStorage.getItem('sea:Ask') || '{}'); } catch (e) { return {}; } })());
+    const K = ["ms"], API = (typeof window !== 'undefined' && window.__SEA_API) || '';
+    if (API && K.length && 'Ask' !== 'Ask') setTimeout(() => { fetch(API + '?t=' + Date.now()).then((r) => r.json()).then((d) => { const r = d && d.store && d.store['sea:Ask']; let la = 0; try { la = Number(localStorage.getItem('sea:Ask:at') || 0); } catch (e) {} if (r && r.v && Number(r.at) > la) { this.__remote = true; this.setState(r.v); this.__remote = false; try { localStorage.setItem('sea:Ask:at', String(r.at)); } catch (e) {} } }).catch(() => {}); }, 50); }
+  setState(t, n){ super.setState(t, n); const K = ["ms"]; if (t && typeof t === 'object' && K.some((k) => k in t)) { try { const o = JSON.parse(localStorage.getItem('sea:Ask') || '{}'); K.forEach((k) => { if (k in t) o[k] = t[k]; }); localStorage.setItem('sea:Ask', JSON.stringify(o)); const at = Date.now(); if (!this.__remote) localStorage.setItem('sea:Ask:at', String(at)); const API = window.__SEA_API; if (API && !this.__remote && 'Ask' !== 'Ask') { clearTimeout(this.__push); this.__push = setTimeout(() => fetch(API, { method: 'POST', body: JSON.stringify({ action: 'set', key: 'sea:Ask', value: o, at }) }).catch(() => {}), 800); } } catch (e) {} } }
   renderVals() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -194,49 +198,46 @@ class Component extends DCLogic {
       };
     })();
     const __r = (() => {
-    const posts = this.state.posts || [];
+    const API = window.__SEA_API || '';
+    const me = (() => { try { return localStorage.getItem('sea:me') === 'hy' ? 'hy' : 'sea'; } catch (e) { return 'sea'; } })();
+    const ms = this.state.ms || [];
+    const byNum = {};
+    ms.slice().sort((a, b) => a.at - b.at).forEach((m) => { (byNum[m.num] = byNum[m.num] || []).push(m); });
+    const posts = Object.keys(byNum).map(Number).sort((a, b) => a - b).map((n) => { const L = byNum[n], h = L[0]; return { num: n, kind: h.kind || 'q', area: h.area || '', t: h.t, at: h.at, msgs: L, last: L[L.length - 1] }; });
     const KINDS = [['all', '전체'], ['q', '질문'], ['wish', '바라는 점']];
     const AREAS = ['일정', '공지참고', '팁', '앱 자체'];
     const f = this.state.f || 'all';
-    const list = posts.filter((p) => f === 'all' || p.kind === f).slice().reverse();
+    const list = posts.filter((p) => f === 'all' || p.kind === f).slice().sort((a, b) => b.last.at - a.last.at);
     const mode = this.state.mode;
-    const sel = posts.find((p) => p.id === this.state.sel) || null;
+    const sel = posts.find((p) => p.num === this.state.sel) || null;
     const dk = this.state.dk || 'q', da = this.state.da || '', dt = this.state.dt || '';
     const fmt = (ts) => { const t = new Date(ts); return (t.getMonth() + 1) + '.' + t.getDate() + ' ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
-    const OUT = 'sea-ask-219116edfe', IN = 'sea-reply-90d3792cbd';
-    const push = (title, message) => { if (!window.__SEA_LIVE) return; try { fetch('https://ntfy.sh/', { method: 'POST', body: JSON.stringify({ topic: OUT, title, message, tags: ['speech_balloon'], priority: 4 }) }).catch(() => {}); } catch (e) {} };
-    const replies = this.state.replies || [];
-    if (window.__SEA_LIVE && !this.__poll) {
-      const pull = () => fetch('https://ntfy.sh/' + IN + '/json?poll=1&since=all').then((r) => r.text()).then((txt) => {
-        const have = new Set((this.state.replies || []).map((x) => x.id));
-        const got = txt.split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch (e) { return null; } }).filter((m) => m && m.event === 'message' && !have.has(m.id));
-        if (!got.length) return;
-        const ps = this.state.posts || [];
-        const add = got.map((m) => { const mm = String(m.message || '').match(/^#(\d+)\s*([\s\S]*)$/); const num = mm ? Number(mm[1]) : (ps.length ? ps[ps.length - 1].num : 0); return { id: m.id, num, t: mm ? mm[2] : String(m.message || ''), at: m.time * 1000 }; });
-        this.setState({ replies: (this.state.replies || []).concat(add) });
-      }).catch(() => {});
-      pull(); this.__poll = setInterval(pull, 15000);
-    }
+    const merge = (server) => { const ids = new Set(server.map((m) => String(m.id))); return server.concat((this.state.ms || []).filter((m) => !ids.has(String(m.id)) && !m.synced)); };
+    const pull = () => API && fetch(API + '?t=' + Date.now()).then((r) => r.json()).then((d) => { if (d && d.messages) this.setState({ ms: merge(d.messages.map((m) => ({ ...m, id: String(m.id), synced: true }))) }); }).catch(() => {});
+    if (API && !this.__poll) { pull(); this.__poll = setInterval(pull, 15000); }
+    const post = (m) => { if (!API) return; fetch(API, { method: 'POST', body: JSON.stringify({ action: 'msg', msg: m }) }).then((r) => r.json()).then((d) => { if (d && d.messages) this.setState({ ms: merge(d.messages.map((x) => ({ ...x, id: String(x.id), synced: true }))) }); }).catch(() => {}); };
+    const newId = () => Date.now() + '-' + Math.random().toString(36).slice(2, 7);
     const send = () => {
       const t = dt.trim(); if (!t) return;
-      const id = Date.now(), num = posts.length + 1;
-      push('세아 #' + num + ' · ' + (dk === 'q' ? '질문' : '바라는 점') + (da ? ' · ' + da : ''), t);
-      this.setState({ posts: posts.concat([{ id, num, kind: dk, area: da, t, at: id, msgs: [{ who: 'me', t, at: id }] }]), dt: '', da: '', mode: 'view', sel: id });
+      const num = posts.length ? Math.max(...posts.map((p) => p.num)) + 1 : 1;
+      const m = { id: newId(), num, who: me, kind: dk, area: da, t, at: Date.now() };
+      post(m);
+      this.setState({ ms: ms.concat([m]), dt: '', da: '', mode: 'view', sel: num });
     };
     const reply = this.state.reply || '';
     const sendReply = () => {
       const t = reply.trim(); if (!t || !sel) return;
-      const at = Date.now();
-      push('세아 #' + (sel.num || '') + ' · 이어서', t);
-      this.setState({ posts: posts.map((p) => p.id === sel.id ? { ...p, msgs: p.msgs.concat([{ who: 'me', t, at }]) } : p), reply: '' });
+      const m = { id: newId(), num: sel.num, who: me, t, at: Date.now() };
+      post(m);
+      this.setState({ ms: ms.concat([m]), reply: '' });
     };
     const hm = (ts) => { const t = new Date(ts), h = t.getHours(); return (h < 12 ? '오전 ' : '오후 ') + ((h + 11) % 12 + 1) + ':' + String(t.getMinutes()).padStart(2, '0'); };
     return {
-      dday, ddc,
+      dday, ddc, isHy: me === 'hy',
       filters: KINDS.map(([k, label]) => ({ label, n: (k === 'all' ? posts : posts.filter((p) => p.kind === k)).length,
         style: k === f ? 'color:#1D1E21;border-bottom-color:#1D1E21;' : 'color:rgba(29,30,33,.5);border-bottom-color:transparent;', pick: () => this.setState({ f: k }) })),
-      rows: list.map((p) => ({ kind: p.kind === 'q' ? '질문' : '바라는 점', area: p.area, hasArea: !!p.area, t: p.t, when: fmt(p.at),
-        style: sel && sel.id === p.id && mode === 'view' ? 'color:#2A4BA0;' : '', pick: () => this.setState({ mode: 'view', sel: p.id }) })),
+      rows: list.map((p) => ({ kind: p.kind === 'q' ? '질문' : '바라는 점', area: p.area, hasArea: !!p.area, t: p.last.t, when: fmt(p.last.at),
+        style: sel && sel.num === p.num && mode === 'view' ? 'color:#2A4BA0;' : '', pick: () => this.setState({ mode: 'view', sel: p.num }) })),
       empty: !list.length,
       composing: mode === 'new', viewing: mode === 'view' && !!sel,
       startNew: () => this.setState({ mode: 'new' }),
@@ -245,7 +246,7 @@ class Component extends DCLogic {
       dt, onDT: (e) => this.setState({ dt: String(e.target.value || '') }), send,
       placeholder: dk === 'q' ? '헷갈리는 거 아무거나' : '이 앱에 고쳤으면 하는 것, 더 있었으면 하는 것',
       selKind: sel ? (sel.kind === 'q' ? '질문' : '바라는 점') : '', selArea: sel ? sel.area : '', selHasArea: !!(sel && sel.area), selT: sel ? sel.t : '', selWhen: sel ? fmt(sel.at) : '',
-      msgs: sel ? (() => { const rs = replies.filter((r) => r.num === sel.num).map((r) => ({ who: 'hy', t: r.t, at: r.at })); const lastR = rs.length ? Math.max(...rs.map((r) => r.at)) : 0; return sel.msgs.concat(rs).sort((a, b) => a.at - b.at).map((m) => ({ t: m.t, time: hm(m.at), mine: m.who === 'me', theirs: m.who !== 'me', unread: m.who === 'me' && m.at > lastR })); })() : [],
+      msgs: sel ? sel.msgs.map((m) => ({ t: m.t, time: hm(m.at), mine: m.who === me, theirs: m.who !== me, unread: m.who === me && !sel.msgs.some((o) => o.who !== me && o.at > m.at) })) : [],
       reply, onReply: (e) => this.setState({ reply: String(e.target.value || '') }), onReplyKey: (e) => { if (e.key === 'Enter') sendReply(); }, sendReply,
       sheet2Style: (mode === 'new' || (mode === 'view' && sel)) ? 'transform:none;opacity:1' : 'transform:translate(0,60px);opacity:0;pointer-events:none',
       closeSheet: () => this.setState({ mode: null }),
