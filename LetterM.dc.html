@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#1D1E21">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SEA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{margin:0;height:100%;overflow:hidden;background:#1D1E21;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}#dc-root{position:fixed;left:0;top:0;transform-origin:0 0}#dc-root .sc-host > div{overflow:clip!important}</style>
+<script>
+window.__SEA_LIVE = true;
+window.__SEA_API = 'https://script.google.com/macros/s/AKfycbxQtSueuLYYESaF0tlLg1548-69484XeGy9Fcef4gxMqGpDpuX1JUzJbGy-PPEKbmEmkA/exec';
+try { var __q = new URLSearchParams(location.search).get('me'); if (__q === 'hy-260dfaa1') localStorage.setItem('sea:me', 'hy'); else if (__q === 'sea') localStorage.removeItem('sea:me'); } catch (e) {}
+(function () {
+  var shell = null; try { shell = window.parent !== window && window.parent.__SEA_SHELL ? window.parent : null; } catch (e) {}
+  var name = location.pathname.split('/').pop() || '';
+  var isM = /M2?\.dc\.html$/.test(name);
+  var mob = Math.min(innerWidth, screen.width) < 760;
+  var other = name === 'HomeD.dc.html' ? 'HomeM2.dc.html' : name === 'HomeM2.dc.html' ? 'HomeD.dc.html' : name.replace(/([DM])\.dc\.html$/, function (m, c) { return (c === 'D' ? 'M' : 'D') + '.dc.html'; });
+  if (!shell && mob !== isM) { location.replace(other + location.search); return; }
+  var stH = innerHeight, stW = innerWidth, kbLocal = 0, de = document.documentElement;
+  function typing() { var a = document.activeElement; return !!a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && a.type !== 'date')); }
+  function applyKb() { de.style.setProperty('--kbpx', Math.max(window.__kbParent || 0, kbLocal) + 'px'); }
+  window.__seaKb = function (px) { window.__kbParent = px; applyKb(); };
+  function fit() {
+    var root = document.getElementById('dc-root'); var el = root && root.querySelector('.sc-host > div');
+    if (!el) return false;
+    var ih = innerHeight;
+    if (innerWidth === stW && ih < stH && typing()) { kbLocal = stH - ih; ih = stH; } else { stH = ih; stW = innerWidth; kbLocal = 0; }
+    applyKb();
+    var W = isM ? 390 : 1280, H = isM ? 844 : 800, s, x = 0, y = 0;
+    if (isM) {
+      var h = Math.max(720, Math.min(844, ih * W / innerWidth));
+      s = Math.min(innerWidth / W, ih / h); el.style.height = h + 'px';
+      x = (innerWidth - W * s) / 2; y = (ih - h * s) / 2;
+    } else {
+      s = Math.min(innerWidth / W, ih / H); x = (innerWidth - W * s) / 2; y = (ih - H * s) / 2;
+    }
+    de.style.setProperty('--fs', String(s));
+    root.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+    return true;
+  }
+  if (!shell && window.visualViewport) {
+    var vv = window.visualViewport;
+    var onVV = function () { window.__kbParent = typing() ? Math.max(0, Math.round(stH - vv.height)) : 0; if (window.__kbParent < 80) window.__kbParent = 0; applyKb(); if (window.scrollY) window.scrollTo(0, 0); };
+    vv.addEventListener('resize', onVV); vv.addEventListener('scroll', onVV);
+  }
+  addEventListener('focusout', function () { setTimeout(function () { if (!typing()) { kbLocal = 0; applyKb(); } }, 50); });
+  var ORDER = ['Onboard', 'Letter', 'Home', 'Schedule', 'Notice', 'Tips', 'Ask'];
+  function sec(n) { var m = String(n).match(/(Onboard|Letter|Home|Schedule|Notice|Tips|Ask)/); return m ? ORDER.indexOf(m[1]) : -1; }
+  var dir = 0; try { dir = Number(sessionStorage.getItem('sea:dir') || 0); sessionStorage.removeItem('sea:dir'); } catch (e) {}
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null; if (!a) return;
+    var h = a.getAttribute('href'); if (!/\.dc\.html/.test(h) || a.target || h.split('?')[0] === name) return;
+    e.preventDefault(); e.stopPropagation();
+    if (shell) { shell.__seaGo(h); return; }
+    var d = sec(h) >= sec(name) ? 1 : -1; try { sessionStorage.setItem('sea:dir', String(d)); } catch (err) {}
+    var host = document.querySelector('#dc-root .sc-host');
+    if (host && host.animate) host.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(' + (-d * 28) + '%)', opacity: 0 }], { duration: 260, easing: 'cubic-bezier(.4,0,.7,.2)', fill: 'forwards' });
+    setTimeout(function () { location.href = h; }, 240);
+  }, true);
+  var tries = 0, entered = !!shell;
+  (function wait() {
+    if (fit()) {
+      if (!entered && dir) { entered = true; var host = document.querySelector('#dc-root .sc-host'); if (host && host.animate) host.animate([{ transform: 'translateX(' + (dir * 28) + '%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 360, easing: 'cubic-bezier(.2,.8,.2,1)' }); }
+      return;
+    }
+    if (tries++ < 300) setTimeout(wait, 20);
+  })();
+  addEventListener('resize', fit); addEventListener('orientationchange', function () { setTimeout(fit, 200); });
+  if (!shell && 'serviceWorker' in navigator) addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+})();
+</script>
+
+<title>SEA · 편지 모바일</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+body{margin:0}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit}
+.ddg{display:none}
+.ddk{position:relative;display:block;white-space:nowrap;color:#1D1E21}
+.box{box-sizing:border-box;border:1.5px solid #1D1E21;background:#ECEBE7;color:#1D1E21}
+.ink{box-sizing:border-box;border:1.5px solid #1D1E21;background:#1D1E21;color:#ECEBE7}
+.scr{overflow-y:auto;scrollbar-width:none}
+.scr::-webkit-scrollbar{display:none}
+.mono{font-family:'IBM Plex Mono',monospace}
+.enter{transition:background .3s,color .3s}.enter:hover{background:#2A4BA0;color:#ECEBE7;border-color:#2A4BA0}
+</style>
+</helmet>
+<div style="width:390px;height:844px;position:relative;overflow:hidden;font-family:'Noto Sans KR',sans-serif;background:#1D1E21;color:#1D1E21">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="rk"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="4" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.2 0 0 0 1.9" result="m"></feColorMatrix><feComposite in="SourceGraphic" in2="m" operator="in"></feComposite></filter></defs></svg>
+<p style="position:absolute;left:17px;top:97px;width:340px;margin:0;font-weight:700;font-size:23px;line-height:1.6;letter-spacing:-.03em;color:#ECEBE7;white-space:pre-line">세아에게
+
+헷갈리면 바로바로 물어보고,
+작년에 나혼자 헤매던 것들을
+예시자료와 함께
+보다 덜 헤맬 수 있도록 정리해놨어.
+
+규칙처럼 따박따박 지킨다기보단
+하나의 사례로 보고
+유연하게 판단해주길 바래.</p>
+<div style="position:absolute;left:236px;top:530px;transform:rotate(12deg) scale(.8);transform-origin:0 0"><svg width="200" height="200" viewBox="0 0 200 200" aria-hidden="true" style="display:block;filter:url(#rk)"><path fill="#2A4BA0" fill-rule="evenodd" d="M92.3,193.9C92.2,193.8 91,193.6 89.6,193.4C88.2,193.1 85.4,192.5 83.5,192C81.5,191.5 79.5,191 79.1,190.8C78.6,190.7 77.4,190.2 76.5,189.8C75.6,189.3 73.6,188.4 72.1,187.7C62.7,183.3 58.2,177.7 57.5,169.3C57.1,165 56.9,141.8 57.2,139.7C57.9,134.7 59.6,131.2 62.8,127.7C65.2,125.2 65.2,125.2 65,123.7C64.4,119.4 64.7,114 65.7,112C67.2,108.6 67,106 64.9,103.1C61.7,98.4 61.6,97.5 62,77.4C62.1,69.4 62.3,55.6 62.4,46.7C62.7,22.1 62.5,23 66.1,19.3C70.5,14.5 76.1,11.6 84.7,9.5C92.9,7.5 109.5,7.5 117.8,9.6C130.5,12.8 138.5,18.8 139.6,26C140,28.2 139.8,58.3 139.3,70C139.2,74.4 138.9,81.1 138.8,84.9C138.3,98 137.8,100.4 134.3,104.7C132.1,107.4 132,107.9 133.4,109.5C135.9,112.5 136.1,114 135.5,123.1C135.3,125.3 135.3,125.3 137.2,127.7C139.4,130.5 141.5,134.6 142.2,137.3C142.6,139.4 143.1,164.2 142.7,169.6C142.1,179.4 133.1,187.8 118.9,191.8C117.6,192.1 116,192.6 115.3,192.8C112.1,193.8 93,194.7 92.3,193.9ZM110,39.2C118.8,37.6 125.6,33.8 127.8,29.3C128.5,27.9 128.5,24.4 127.8,23.1C122.3,12.8 97.7,9.3 81.7,16.6C73.5,20.3 71.3,27.6 76.8,32.7C80.5,36.1 86.4,38.4 94.6,39.6C97.1,40 107.2,39.7 110,39.2ZM95.5,38.8C78.9,36.5 70.9,28.3 77.9,20.8C88,9.9 120.7,11.7 126.1,23.5C128.5,28.9 123,35.1 113.7,37.3C112.2,37.7 110.2,38.2 109.2,38.4C107.1,38.9 98.1,39.2 95.5,38.8ZM91.6,36C92.1,36 92.6,36 92.8,35.9C93,35.9 93.1,35.6 93,34.9C93,33.9 93,33.9 91.5,33.8C89.9,33.7 89,34.2 90.4,34.5C92,34.8 91.2,35.4 89.2,35.4C87.2,35.4 86.7,34.1 88.3,33C89.6,32.2 90.4,32 91.3,32.6C92,33 92.6,32.9 92.6,32.4C92.6,31.5 88.7,31.5 87.2,32.5C84.8,34.2 86.6,36.7 89.8,36.2C90.4,36.2 91.2,36.1 91.6,36ZM99.3,35.6C101.8,34.5 100.5,32.2 97.5,32.2C94.6,32.2 93.1,34.8 95.4,35.7C96.5,36.2 98.1,36.1 99.3,35.6ZM106.4,35.7C108.4,34.7 108.3,32.8 106.1,32.2C103,31.2 99.9,34.3 102.7,35.7C103.9,36.3 105.2,36.3 106.4,35.7ZM114.1,35.3C116.3,34.1 116,33.1 113.4,32.3C110.5,31.4 109.5,31.8 109.2,33.8C109,36.1 109.2,36.3 111.4,36.1C112.4,36 113.5,35.7 114.1,35.3ZM96.3,35.1C95.6,34.8 95.5,33.6 96.3,33.2C97.1,32.8 98.7,33 99,33.6C99.6,34.6 97.7,35.7 96.3,35.1ZM103.7,35.2C103.1,35 103,33.7 103.6,33.2C104.7,32.3 107,33.1 106.4,34.3C105.9,35.1 104.8,35.5 103.7,35.2ZM110.5,34C110.8,32.4 110.9,32.3 112.4,32.7C114.9,33.5 114.4,35.1 111.7,35.1C110.4,35.1 110.4,35.1 110.5,34ZM108.4,30.8C111.7,30.3 114.1,29.4 115.8,28C116.5,27.4 116.8,27.4 118,27.5C118.8,27.6 119.4,27.6 119.5,27.4C119.6,27.2 119.4,27.1 119,27.1C116.9,27.1 116.4,25.9 118.3,25.4C119.1,25.2 119.4,25 119.2,24.9C119,24.8 118.6,24.8 118.3,24.9C117.7,25.1 116.7,24.4 116.7,23.8C116.7,23.7 116.3,23.1 115.7,22.5C114.9,21.7 114.6,21.2 114.5,20.2C114.1,17.2 111.6,16.8 107.3,18.9C105.8,19.7 95.5,19.4 93.4,18.5C89.2,16.8 86.7,17.7 86.7,21C86.7,21.6 86.5,21.9 85.9,22.3C85.5,22.7 84.8,23.4 84.4,24.1C83.8,25.2 83.6,25.3 82.7,25.3C82.1,25.3 81.7,25.4 81.7,25.5C81.7,25.7 82.2,25.8 82.8,25.8C83.6,25.8 84.1,25.9 84.1,26.2C84.3,26.7 83.8,27.1 83.1,27.1C82.7,27.1 82.5,27.3 82.5,27.4C82.5,27.5 83,27.7 83.7,27.7C84.4,27.7 85.2,27.8 85.6,28.2C89.5,30.9 99.9,32.1 108.4,30.8ZM93.2,30.2C88.5,29.3 85.3,27.5 87.7,27.1C88.8,26.9 88.5,26.5 87.1,26.5C86.5,26.5 86,26.3 86,26.2C86,26 86.3,25.9 87.6,25.8C88.5,25.8 87.7,25.3 86.7,25.3C85.2,25.3 85.3,24.5 87,22.8C88.1,21.8 88.3,21.4 88.3,20.6C88.3,18.2 90.1,17.9 93.7,19.5C94.7,20 95.1,20.1 96.7,19.9C98.9,19.7 103.3,19.7 105.3,19.9C106.6,20.1 107,20 108.5,19.3C111.9,17.8 113.3,18.2 113.3,20.9C113.3,21.7 113.5,22 114.5,23C116,24.4 115.9,24.8 114.1,25.1C112.4,25.4 112.4,25.8 114.1,25.8C115.8,25.8 116.1,26.3 114.4,26.4C112.8,26.5 112.4,27 113.8,27.1C116.3,27.3 111.6,29.7 107.4,30.3C104.6,30.7 95.6,30.6 93.2,30.2ZM104.8,27.9C105.3,27.7 105.6,27.5 105.6,27.4C105.6,27 104.8,27.1 103.8,27.4C102.5,27.9 101.2,27.3 102.1,26.6C103,25.9 102.6,25.5 100.8,25.5C99.1,25.5 98.6,25.9 99.5,26.5C99.9,26.8 100,27 99.7,27.3C99.4,27.7 97.7,27.8 97.5,27.4C97.4,27.3 97,27.1 96.6,27.1C95.9,27.1 95.9,27.1 96.5,27.6C97.1,28.2 103.5,28.4 104.8,27.9ZM95.9,25.4C96.7,24.9 96.2,24.2 95,24.2C93.8,24.2 93.4,24.7 94.1,25.4C94.6,25.9 95.2,25.9 95.9,25.4ZM107.5,25.5C108.1,25 107.9,24.4 107.1,24C106.4,23.7 104.8,24.2 104.8,24.8C104.8,25.7 106.6,26.2 107.5,25.5ZM123.8,24.7C124,24.5 124.5,24.2 124.7,24.1C125.3,23.9 125.4,23.1 124.9,23.1C124.7,23.1 124.2,23 123.7,22.7C123,22.3 122.9,22.3 121.8,23C120.7,23.8 120.7,23.8 121.4,24.1C121.9,24.3 122.4,24.6 122.6,24.9C123,25.4 123.2,25.4 123.8,24.7ZM83.9,22.3C85.1,20.9 84.5,19.8 82.6,20.1C82,20.2 80.9,20.3 80.2,20.4C77.4,20.7 77.3,22.1 80.1,22.8C82.5,23.3 83.1,23.3 83.9,22.3ZM119.4,22.6C119.7,22.3 120,22 119.9,22C118.3,20.9 116.1,21.4 117.5,22.5C118.4,23.3 118.6,23.3 119.4,22.6ZM80.7,22.4C78.9,21.9 78.7,21.2 80.5,21.3C81.4,21.4 81.8,21.3 82,20.9C82.3,20.4 82.8,20.4 83.3,20.9C84.1,21.9 82.6,22.8 80.7,22.4Z"></path></svg></div>
+<div style="position:absolute;left:176px;top:650px;transform:rotate(-9deg)"><div aria-hidden="true" style="width:120px;height:120px;box-sizing:border-box;border:6px solid #2A4BA0;border-radius:50%;display:flex;align-items:center;justify-content:center;filter:url(#rk)"><span class="mono" style="font-weight:500;font-size:22px;color:#2A4BA0;letter-spacing:-.02em">12.03</span></div></div>
+<a class="box enter" href="HomeM2.dc.html" style="position:absolute;left:16px;bottom:16px;height:56px;padding:0 24px;display:flex;align-items:center;font-weight:900;font-size:17px;letter-spacing:-.02em;z-index:10">들어가기</a>
+<svg style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;z-index:20" width="390" height="844" aria-hidden="true"><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"></feTurbulence><feColorMatrix type="matrix" values="0 0 0 0 0.3  0 0 0 0 0.3  0 0 0 0 0.32  0.7 0 0 0 -0.4"></feColorMatrix></filter><rect width="390" height="844" filter="url(#gr)" opacity="0.45"></rect></svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); window.addEventListener('sea:show', () => this.setState({ __dz: Date.now() })); this.state = {}; }
+  renderVals() {
+    const __dv = (() => { let s = '2026-09-15'; try { const v = JSON.parse(localStorage.getItem('sea:dates') || 'null') || { start: (JSON.parse(localStorage.getItem('sea:Schedule') || '{}') || {}).start }; if (v && String(v.start || '').length === 10) s = v.start; } catch (e) {} return { s }; })();
+    const [__sy, __sm, __sd] = __dv.s.split('-').map(Number);
+    const seaDay = (o) => new Date(__sy, __sm - 1, __sd + o);
+    const __o = seaDay(79), __oy = __o.getFullYear(), __om = __o.getMonth() + 1, __od = __o.getDate(), __span = 79;
+    const seaSaveDates = (s) => { const v = { start: s || __dv.s }, at = Date.now(); try { localStorage.setItem('sea:dates', JSON.stringify(v)); localStorage.setItem('sea:dates:at', String(at)); } catch (e) {} const A = window.__SEA_API; if (A) fetch(A, { method: 'POST', body: JSON.stringify({ action: 'set', key: 'sea:dates', value: v, at }) }).catch(() => {}); };
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const open = new Date(__oy, __om - 1, __od);
+    const dn = Math.round((open - today) / 86400000);
+    const dday = dn > 0 ? 'D-' + dn : (dn === 0 ? 'D-DAY' : 'D+' + (-dn));
+    return { dday };
+  }
+}
+</script>
+</body>
+</html>

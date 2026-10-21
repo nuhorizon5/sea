@@ -1,0 +1,128 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no,interactive-widget=overlays-content">
+<title>SEA</title>
+<meta name="theme-color" content="#1D1E21">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="SEA">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="icon" href="icons/icon-192.png">
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#1D1E21;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;transition:background-color .5s}
+body{position:fixed;inset:0}
+#stage{position:fixed;inset:0;overflow:hidden}
+#stage iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;visibility:hidden;background:transparent;display:block}
+#stage iframe.on{visibility:visible}
+#load{position:fixed;inset:0;z-index:9;background:#1D1E21;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .6s ease}
+#load.off{opacity:0;pointer-events:none}
+#load .logo{width:150px;animation:breathe 1.6s ease-in-out infinite alternate}
+#load .logo svg{width:100%;height:auto}
+#load .bar{width:150px;height:3px;background:rgba(236,235,231,.15);overflow:hidden}
+#load .bar i{display:block;width:40%;height:100%;background:#2A4BA0;animation:slide 1.1s cubic-bezier(.4,0,.2,1) infinite}
+#tick{position:fixed;left:0;top:0;height:3px;width:0;background:#2A4BA0;z-index:8;opacity:0;transition:opacity .2s}
+#tick.go{opacity:1;animation:tick 2.4s cubic-bezier(.1,.6,.2,1) forwards}
+@keyframes breathe{from{opacity:.55;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes slide{from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+@keyframes tick{from{width:0}to{width:85%}}
+</style></head><body>
+<div id="stage" aria-live="polite"></div>
+<div id="tick" aria-hidden="true"></div>
+<div id="load" role="status" aria-label="불러오는 중"><div class="logo"><svg viewBox="64 36 538 196"  role="img" aria-label="SEA" style="display:block;"><path fill="#2A4BA0" d="M125.48,42.34h105.7l.37,58.43h-82.25v20.1h33.87c41.69,0,62.16,23.82,62.16,53.22s-20.47,53.97-62.16,53.97h-114.64v-56.2h81.14v-19.73h-81.14v-56.2c0-36.85,20.47-53.6,56.95-53.6Z"></path><path fill="#2A4BA0" d="M396.02,39.74v80.77h-61.78c-.37-8.56-7.44-15.63-16.38-15.63s-16.75,7.44-16.75,16.75,7.44,16.38,16.75,16.38h44.66v30.15h33.5v59.92h-158.55V39.74h158.55Z"></path><path fill="#2A4BA0" d="M477.74,147.3v80.77h-95.28l74.81-185.72h65.13l75.18,185.72h-97.14v-93.05c0-8.19-6.7-14.89-14.89-14.89s-14.89,6.7-14.89,14.89c0,5.21,2.61,10.05,7.07,12.28Z"></path></svg></div><div class="bar"><i></i></div></div>
+<script>
+(function () {
+  window.__SEA_SHELL = true;
+  var API = 'https://script.google.com/macros/s/AKfycbxQtSueuLYYESaF0tlLg1548-69484XeGy9Fcef4gxMqGpDpuX1JUzJbGy-PPEKbmEmkA/exec';
+  try { var mq = new URLSearchParams(location.search).get('me'); if (mq === 'hy-260dfaa1') localStorage.setItem('sea:me', 'hy'); else if (mq === 'sea') localStorage.removeItem('sea:me'); } catch (e) {}
+  var M = Math.min(innerWidth, screen.width) < 760;
+  var ORDER = ['Onboard', 'Letter', 'Home', 'Schedule', 'Notice', 'Tips', 'Ask'];
+  var DARK = { Onboard: 1, Letter: 1 };
+  var stage = document.getElementById('stage'), load = document.getElementById('load'), tick = document.getElementById('tick');
+  function baseOf(h) { var m = String(h).match(/(Onboard|Letter|Home|Schedule|Notice|Tips|Ask)/); return m ? m[1] : null; }
+  function file(b) { return (b === 'Home' ? (M ? 'HomeM2' : 'HomeD') : b + (M ? 'M' : 'D')) + '.dc.html'; }
+  var frames = {}, cur = null, busy = false, queued = null;
+  function ready(f, done) {
+    var n = 0, fin = false, end = function () { if (fin) return; fin = true; requestAnimationFrame(function () { requestAnimationFrame(done); }); };
+    (function t() {
+      try {
+        var d = f.contentDocument, r = d && d.getElementById('dc-root');
+        if (r && r.style.transform && r.querySelector('.sc-host > div')) {
+          if (d.fonts && d.fonts.ready) { d.fonts.ready.then(end); setTimeout(end, 900); } else end();
+          return;
+        }
+      } catch (e) {}
+      if (n++ < 400) setTimeout(t, 25); else end();
+    })();
+  }
+  function make(b, q) {
+    var f = document.createElement('iframe');
+    f.setAttribute('title', b); f.setAttribute('allow', 'clipboard-write; web-share');
+    var o = { b: b, q: q || '', f: f, done: false, cbs: [] };
+    o.when = function (cb) { if (o.done) cb(); else o.cbs.push(cb); };
+    f.addEventListener('load', function () { ready(f, function () { o.done = true; o.cbs.splice(0).forEach(function (cb) { cb(); }); }); }, { once: true });
+    f.src = file(b) + (q || '');
+    stage.appendChild(f); frames[b] = o; return o;
+  }
+  function show(o) {
+    try { var w = o.f.contentWindow; w.dispatchEvent(new Event('sea:show')); } catch (e) {}
+  }
+  function go(h, fromPop) {
+    var b = baseOf(h); if (!b) return;
+    var q = h.indexOf('?') >= 0 ? h.slice(h.indexOf('?')) : '';
+    if (busy) { queued = [h, fromPop]; return; }
+    var o = frames[b];
+    if (o && q && o.q !== q) { if (o === cur) { o.f.src = file(b) + q; o.q = q; return; } o.f.remove(); delete frames[b]; o = null; }
+    if (!o) o = make(b, q);
+    if (o === cur) return;
+    busy = true;
+    var d = cur ? (ORDER.indexOf(b) >= ORDER.indexOf(cur.b) ? 1 : -1) : 0;
+    if (!fromPop) { try { history[cur ? 'pushState' : 'replaceState']({ h: file(b) + q }, '', '#' + b); } catch (e) {} }
+    var slow = setTimeout(function () { if (cur) tick.className = 'go'; }, 120);
+    o.when(function () { clearTimeout(slow); tick.className = ''; swap(o, d); });
+  }
+  function swap(o, d) {
+    var old = cur; cur = o;
+    document.documentElement.style.backgroundColor = document.body.style.backgroundColor = DARK[o.b] ? '#1D1E21' : '#2A4BA0';
+    o.f.classList.add('on'); show(o);
+    if (!old) { load.classList.add('off'); busy = false; prefetch(); return next(); }
+    try { var a = old.f.contentDocument.activeElement; if (a && a.blur) a.blur(); } catch (e) {}
+    var dur = 560, ez = 'cubic-bezier(.22,.8,.22,1)';
+    o.f.style.zIndex = 2; old.f.style.zIndex = 1;
+    o.f.style.boxShadow = (d > 0 ? '-' : '') + '24px 0 48px rgba(10,12,20,.28)';
+    var an = o.f.animate([{ transform: 'translate3d(' + (d * 100) + '%,0,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: dur, easing: ez });
+    old.f.animate([{ transform: 'translate3d(0,0,0)', opacity: 1 }, { transform: 'translate3d(' + (-d * 28) + '%,0,0)', opacity: .55 }], { duration: dur, easing: ez, fill: 'forwards' });
+    an.onfinish = function () {
+      old.f.classList.remove('on'); old.f.getAnimations().forEach(function (x) { x.cancel(); });
+      o.f.style.zIndex = ''; o.f.style.boxShadow = ''; old.f.style.zIndex = '';
+      busy = false; next();
+    };
+  }
+  function next() { if (queued) { var q = queued; queued = null; go(q[0], q[1]); } }
+  function prefetch() {
+    var list = ['Letter', 'Home', 'Schedule', 'Notice', 'Tips', 'Ask'];
+    (function one() {
+      var b = list.shift(); if (!b) return;
+      if (frames[b]) return one();
+      var o = make(b, ''); o.when(function () { setTimeout(one, 250); });
+    })();
+  }
+  window.__seaGo = function (h) { go(h, false); };
+  addEventListener('popstate', function (e) { var h = e.state && e.state.h; if (h) go(h, true); });
+  // 키보드: 화면을 밀어 올리지 않고 겹치게. 안쪽 페이지에 키보드 높이만 알려 준다.
+  if (window.visualViewport) {
+    var vv = window.visualViewport, base = innerHeight;
+    var kb = function () {
+      if (vv.height > base) base = vv.height;
+      var px = Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop)); if (px < 80) px = 0;
+      try { cur && cur.f.contentWindow.__seaKb && cur.f.contentWindow.__seaKb(px); } catch (e) {}
+      if (window.scrollY || document.body.scrollTop) { window.scrollTo(0, 0); document.body.scrollTop = 0; }
+    };
+    vv.addEventListener('resize', kb); vv.addEventListener('scroll', kb);
+  }
+  var u = false, dd = false;
+  try { u = localStorage.getItem('sea:unlocked') === '1'; dd = !!localStorage.getItem('sea:dates'); } catch (e) {}
+  var start = function () { go(u && dd ? 'Home' : (u ? 'Onboard?step=dates' : 'Onboard'), false); };
+  if (u && !dd && API) {
+    var t = setTimeout(start, 2500), once = false, st2 = function () { if (once) return; once = true; clearTimeout(t); start(); };
+    fetch(API + '?t=' + Date.now()).then(function (r) { return r.json(); }).then(function (x) { var r = x && x.store && x.store['sea:dates']; if (r && r.v) { try { localStorage.setItem('sea:dates', JSON.stringify(r.v)); localStorage.setItem('sea:dates:at', String(r.at)); dd = true; } catch (e) {} } st2(); }).catch(st2);
+  } else start();
+  if ('serviceWorker' in navigator) addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+})();
+</script></body></html>
