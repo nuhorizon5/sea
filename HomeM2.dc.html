@@ -61,13 +61,13 @@ try { var __q = new URLSearchParams(location.search).get('me'); if (__q === 'hy-
     if (shell) { shell.__seaGo(h); return; }
     var d = sec(h) >= sec(name) ? 1 : -1; try { sessionStorage.setItem('sea:dir', String(d)); } catch (err) {}
     var host = document.querySelector('#dc-root .sc-host');
-    if (host && host.animate) host.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(' + (-d * 28) + '%)', opacity: 0 }], { duration: 260, easing: 'cubic-bezier(.4,0,.7,.2)', fill: 'forwards' });
+    if (host && host.animate) host.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(' + (d * 4) + '%) scale(.985)', opacity: 0 }], { duration: 260, easing: 'cubic-bezier(.4,0,.7,.2)', fill: 'forwards' });
     setTimeout(function () { location.href = h; }, 240);
   }, true);
   var tries = 0, entered = !!shell;
   (function wait() {
     if (fit()) {
-      if (!entered && dir) { entered = true; var host = document.querySelector('#dc-root .sc-host'); if (host && host.animate) host.animate([{ transform: 'translateX(' + (dir * 28) + '%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 360, easing: 'cubic-bezier(.2,.8,.2,1)' }); }
+      if (!entered && dir) { entered = true; var host = document.querySelector('#dc-root .sc-host'); if (host && host.animate) host.animate([{ transform: 'translateY(' + (dir * -24) + '%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 520, easing: 'cubic-bezier(.2,.75,.2,1)' }); }
       return;
     }
     if (tries++ < 300) setTimeout(wait, 20);
@@ -122,7 +122,7 @@ a{text-decoration:none}
   <div aria-hidden="true" onClick="{{bgTap}}" style="position:absolute;inset:0;z-index:0"></div>
 
   <a class="dday" href="ScheduleM.dc.html" aria-label="일정 — 우리 전시 오픈까지 {{dday}}" style="{{ddStyle}}"><span class="ddg" aria-hidden="true" style="{{ddGhost}}">{{dday}}</span><span class="ddk" style="{{ddc}}">{{dday}}</span></a>
-  <button onClick="{{toWeb}}" aria-label="노트북에서 열 수 있게 링크 보내기" style="position:absolute;right:16px;top:20px;z-index:6;height:40px;padding:0 12px 0 10px;box-sizing:border-box;border:1.5px solid #1D1E21;background:#ECEBE7;display:flex;align-items:center;gap:7px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:900;font-size:13px;letter-spacing:-.02em;color:#1D1E21"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v10H4zM2 19h20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"></path></svg>{{webLabel}}</button>
+  <button onClick="{{toWeb}}" aria-label="노트북에서 열 수 있게 링크 보내기" style="position:absolute;right:16px;top:12px;z-index:6;height:36px;padding:0 12px 0 10px;box-sizing:border-box;border:1.5px solid #1D1E21;background:#ECEBE7;display:flex;align-items:center;gap:7px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:900;font-size:13px;letter-spacing:-.02em;color:#1D1E21"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v10H4zM2 19h20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"></path></svg>{{webLabel}}</button>
 
   <sc-for list="{{ghosts}}" as="g" hint-placeholder-count="0">
     <span class="gh" aria-hidden="true" style="{{g.style}}">
@@ -173,13 +173,13 @@ a{text-decoration:none}
 <sc-if value="{{showNotif}}" hint-placeholder-val="{{ true }}"><div aria-live="polite" style="position:absolute;left:16px;right:16px;top:16px;z-index:30;display:flex;flex-direction:column;gap:8px;pointer-events:none">
 <sc-for list="{{notes}}" as="n" hint-placeholder-count="2"><div class="ntf" style="{{n.delay}}"><a href="ScheduleM.dc.html" style="display:block;flex:1;min-width:0;color:#1D1E21"><div style="font-weight:900;font-size:15px;letter-spacing:-.02em">{{n.head}}</div><div style="font-size:13px;line-height:1.45;margin-top:2px">{{n.body}}</div></a><button onClick="{{n.close}}" aria-label="알림 닫기" style="flex:none;width:28px;height:28px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#1D1E21"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"></path></svg></button></div></sc-for>
 </div></sc-if>
-  <nav aria-label="주요 메뉴" style="position:absolute;left:16px;bottom:16px;display:flex;padding-left:1.5px;z-index:5">
+  <nav aria-label="주요 메뉴" style="position:absolute;left:16px;right:16px;bottom:16px;display:flex;padding-left:1.5px;z-index:5">
     <button onClick="{{sFocus}}" aria-label="찾기" style="width:44px;height:56px;box-sizing:border-box;border:1.5px solid #1D1E21;margin-left:-1.5px;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#1D1E21;{{magStyle}}"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"></path></svg></button>
     <a class="nav" href="HomeM2.dc.html" aria-current="page" style="width:54px;{{navOn}}">홈</a>
     <a class="nav" href="ScheduleM.dc.html" style="width:58px">일정</a>
     <a class="nav" href="NoticeM.dc.html" style="width:86px">공지참고</a>
     <a class="nav" href="TipsM.dc.html" style="width:48px">팁</a>
-    <a class="nav" href="AskM.dc.html" style="width:76px">물어보기</a>
+    <a class="nav" href="AskM.dc.html" style="flex:1;min-width:0">물어보기</a>
   </nav>
 
 <sc-if value="{{sOpen}}" hint-placeholder-val="{{ false }}"><section aria-label="찾기" class="box" style="position:absolute;left:16px;right:16px;top:60px;bottom:84px;z-index:15;display:flex;flex-direction:column">
