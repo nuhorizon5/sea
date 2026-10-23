@@ -83,7 +83,7 @@ try { var __q = new URLSearchParams(location.search).get('me'); if (__q === 'hy-
 <body>
 <x-dc>
 <helmet>
-<link href="fonts/fonts.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@200..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"><link href="fonts/fonts.css" rel="stylesheet">
 <style>
 body{margin:0}
 a{text-decoration:none;color:inherit}
@@ -141,7 +141,7 @@ button{font-family:inherit}
 <div style="position:absolute;left:12px;top:12px;font-weight:400;font-size:44px;line-height:.85;letter-spacing:-.04em;z-index:2;{{ddc}}">{{dday}}</div>
 <section aria-label="남긴 것" class="sheet" style="left:16px;right:16px;top:60px;bottom:84px;padding:20px 18px 0;z-index:3;display:flex;flex-direction:column">
 <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 6px"><h1 style="margin:0;font-weight:700;font-size:24px;letter-spacing:-.03em">{{askTitle}}</h1><sc-if value="{{notHy}}" hint-placeholder-val="{{ true }}"><span style="display:flex;gap:5px"><button onClick="{{startNew}}" class="ink" style="height:32px;padding:0 10px;font-weight:900;font-size:13px;cursor:pointer">+ 질문하기</button><button onClick="{{startFb}}" class="ghostbtn" style="height:32px;padding:0 10px;font-size:13px">피드백 보내기</button></span></sc-if></div>
-<p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:rgba(29,30,33,.7)">{{intro1m}}<br>{{intro2}}</p>
+<sc-if value="{{isHy}}" hint-placeholder-val="{{ true }}"></sc-if><sc-if value="{{notHy}}" hint-placeholder-val="{{ false }}"><div style="height:10px"></div></sc-if>
 <div role="tablist" style="display:flex"><sc-for list="{{filters}}" as="tb" hint-placeholder-count="3"><button role="tab" class="tab" onClick="{{tb.pick}}" style="font-size:15px;{{tb.style}}">{{tb.label}}<span class="mono" style="font-size:12px;font-weight:500">{{tb.n}}</span></button></sc-for></div>
 <div class="scr" style="flex:1;margin-top:8px;padding-bottom:20px"><sc-if value="{{empty}}" hint-placeholder-val="{{ true }}"><p style="margin:18px 0 0;font-size:15px;line-height:1.6;font-weight:700;color:rgba(29,30,33,.55)">아직 남긴 게 없어.<br>헷갈리는 거, 바라는 거 아무거나 남겨 줘.</p></sc-if>
 <div style="border-bottom:1px solid rgba(29,30,33,.22)"><sc-for list="{{rows}}" as="r" hint-placeholder-count="0"><button class="prow" onClick="{{r.pick}}" style="{{r.style}}">
